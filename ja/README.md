@@ -20,6 +20,16 @@ https://kxn4t.github.io/blender-extensions/index.json
 
 <!-- EXTENSIONS_LIST_START -->
 
+### Vertex Group Merger
+
+複数の頂点グループを1つのターゲットグループにマージするアドオン
+
+**Version:** 0.6.0 (Blender ver. 4.2+)
+
+[ダウンロード (v0.6.0)](https://kxn4t.github.io/blender-extensions/vertex_group_merger/vertex_group_merger-0.6.0.zip?repository=https%3A%2F%2Fkxn4t.github.io%2Fblender-extensions%2Findex.json&blender_version_min=4.2.0)
+
+[GitHub](https://github.com/kxn4t/vertex-group-merger) | [BOOTH](https://kanameliser.booth.pm/items/6853101)
+
 <!-- EXTENSIONS_LIST_END -->
 
 ---
@@ -29,5 +39,11 @@ https://kxn4t.github.io/blender-extensions/index.json
 こちらは BOOTH で販売中のアドオンです。
 
 <!-- PAID_LIST_START -->
+
+### Merge Armatures Tool
+
+[VRChat向け] 衣装アーマチュアを素体アーマチュアにマージする面倒な作業を自動化するアドオン
+
+[BOOTH で購入](https://kanameliser.booth.pm/items/6551022)
 
 <!-- PAID_LIST_END -->

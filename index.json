@@ -1,5 +1,27 @@
 {
   "version": "v1",
   "blocklist": [],
-  "data": []
+  "data": [
+    {
+      "schema_version": "1.0.0",
+      "id": "vertex_group_merger",
+      "name": "Vertex Group Merger",
+      "tagline": "Merge multiple vertex groups into a target group",
+      "version": "0.6.0",
+      "type": "add-on",
+      "maintainer": "kxn4t",
+      "license": [
+        "SPDX:GPL-3.0-or-later"
+      ],
+      "blender_version_min": "4.2.0",
+      "website": "https://github.com/kxn4t/vertex-group-merger",
+      "tags": [
+        "Mesh",
+        "Rigging"
+      ],
+      "archive_url": "https://kxn4t.github.io/blender-extensions/vertex_group_merger/vertex_group_merger-0.6.0.zip",
+      "archive_size": 26167,
+      "archive_hash": "sha256:673d6c65815ed8bccb023997bd65f9e411f1c55579fa926ae08974b227d43b43"
+    }
+  ]
 }

@@ -20,6 +20,16 @@ https://kxn4t.github.io/blender-extensions/index.json
 
 <!-- EXTENSIONS_LIST_START -->
 
+### Vertex Group Merger
+
+Merge multiple vertex groups into a single target group
+
+**Version:** 0.6.0 (Blender ver. 4.2+)
+
+[Download (v0.6.0)](https://kxn4t.github.io/blender-extensions/vertex_group_merger/vertex_group_merger-0.6.0.zip?repository=https%3A%2F%2Fkxn4t.github.io%2Fblender-extensions%2Findex.json&blender_version_min=4.2.0)
+
+[GitHub](https://github.com/kxn4t/vertex-group-merger) | [BOOTH](https://kanameliser.booth.pm/items/6853101)
+
 <!-- EXTENSIONS_LIST_END -->
 
 ---
@@ -29,5 +39,11 @@ https://kxn4t.github.io/blender-extensions/index.json
 These addons are available for purchase on BOOTH.
 
 <!-- PAID_LIST_START -->
+
+### Merge Armatures Tool
+
+[For VRChat] Automates merging outfit armatures into base body armatures
+
+[Buy on BOOTH](https://kanameliser.booth.pm/items/6551022)
 
 <!-- PAID_LIST_END -->
