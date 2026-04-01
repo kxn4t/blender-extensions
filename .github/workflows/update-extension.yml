@@ -22,6 +22,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
+      actions: write
       contents: write
       pages: read
     steps:
@@ -79,11 +80,22 @@ jobs:
         run: python scripts/generate_pages.py
 
       - name: Commit and push
+        id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add "$ADDON_ID"/*.zip index.json ja/README.md en/README.md
-          git diff --staged --quiet && exit 0
-          git commit -m "Update ${REPO##*/} to ${TAG}"
-          git pull --rebase
-          git push
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            git commit -m "Update ${REPO##*/} to ${TAG}"
+            git pull --rebase
+            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger Pages deploy
+        if: steps.commit.outputs.changed == 'true'
+        run: gh workflow run pages.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
