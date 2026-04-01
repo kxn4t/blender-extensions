@@ -1,0 +1,14 @@
+{
+  "vertex_group_merger": {
+    "description_ja": "複数の頂点グループを1つのターゲットグループにマージするアドオン",
+    "description_en": "Merge multiple vertex groups into a single target group",
+    "repo_url": "https://github.com/kxn4t/vertex-group-merger",
+    "booth_url": "https://kanameliser.booth.pm/items/6853101"
+  },
+  "pose_to_rest_pose": {
+    "description_ja": "シェイプキーとドライバーを保持したままレストポーズを適用するアドオン",
+    "description_en": "Apply pose as rest pose while preserving shape keys and drivers",
+    "repo_url": "https://github.com/kxn4t/pose-to-rest-pose",
+    "booth_url": "https://kanameliser.booth.pm/items/6999784"
+  }
+}

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Kanameliser Blender Extensions</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-darklight-theme@3/dist/style.min.css">
+  <style>
+    .lang-switch {
+      position: fixed;
+      top: 10px;
+      right: 80px;
+      z-index: 99;
+      display: flex;
+      gap: 4px;
+    }
+    .lang-switch a {
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 14px;
+      border: 1px solid var(--accent, #42b983);
+      color: var(--accent, #42b983);
+    }
+    .lang-switch a.active {
+      background: var(--accent, #42b983);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <div class="lang-switch">
+    <a href="#/ja/" data-lang="ja">日本語</a>
+    <a href="#/en/" data-lang="en">English</a>
+  </div>
+  <script>
+    window.$docsify = {
+      name: 'Kanameliser Blender Extensions',
+      nameLink: '#/ja/',
+      homepage: '/ja/README.md',
+      loadSidebar: true,
+      alias: {
+        '/.*/_sidebar.md': '/_sidebar.md',
+      },
+      darklightTheme: {
+        defaultTheme: 'dark',
+      },
+      plugins: [
+        function (hook, vm) {
+          // 言語切り替えボタンのアクティブ状態を更新
+          function updateLangSwitch() {
+            var path = location.hash || '#/ja/';
+            var lang = path.match(/^#\/(ja|en)\//) ? RegExp.$1 : 'ja';
+            document.querySelectorAll('.lang-switch a').forEach(function (a) {
+              a.classList.toggle('active', a.dataset.lang === lang);
+            });
+          }
+
+          // 言語切り替え時にパスを維持（例: #/ja/foo → #/en/foo）
+          document.querySelectorAll('.lang-switch a').forEach(function (a) {
+            a.addEventListener('click', function (e) {
+              e.preventDefault();
+              var targetLang = a.dataset.lang;
+              var path = location.hash || '#/ja/';
+              var newPath = path.replace(/^#\/(ja|en)\//, '#/' + targetLang + '/').replace(/\?id=.*$/, '');
+              location.hash = newPath;
+            });
+          });
+
+          hook.doneEach(function () {
+            // タイトル更新
+            var h1 = document.querySelector('.markdown-section h1');
+            var heading = h1 ? h1.textContent.trim() : '';
+            if (heading && heading !== vm.config.name) {
+              document.title = heading + ' - ' + vm.config.name;
+            } else {
+              document.title = vm.config.name;
+            }
+            updateLangSwitch();
+          });
+        },
+      ],
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-darklight-theme@3/dist/index.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-plugin-flexible-alerts/dist/docsify-plugin-flexible-alerts.min.js"></script>
+</body>
+</html>

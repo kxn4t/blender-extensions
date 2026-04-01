@@ -1,0 +1,88 @@
+name: Update Extension
+on:
+  repository_dispatch:
+    types: [update-extension]
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: "Addon repository (e.g. kxn4t/vertex-group-merger)"
+        required: true
+      tag:
+        description: "Release tag (e.g. v0.5.0)"
+        required: true
+      addon_id:
+        description: "Addon ID (e.g. vertex_group_merger)"
+        required: true
+
+concurrency:
+  group: update-extension
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set variables
+        run: |
+          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
+            REPO="$CP_REPO"
+            TAG="$CP_TAG"
+            ADDON_ID="$CP_ADDON_ID"
+            VERSION="$CP_VERSION"
+          else
+            REPO="$INPUT_REPO"
+            TAG="$INPUT_TAG"
+            ADDON_ID="$INPUT_ADDON_ID"
+            # タグから "v" プレフィクスを除去してバージョンを得る
+            VERSION="${TAG#v}"
+          fi
+          echo "REPO=$REPO" >> $GITHUB_ENV
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "ADDON_ID=$ADDON_ID" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CP_REPO: ${{ github.event.client_payload.repo }}
+          CP_TAG: ${{ github.event.client_payload.tag }}
+          CP_ADDON_ID: ${{ github.event.client_payload.addon_id }}
+          CP_VERSION: ${{ github.event.client_payload.version }}
+          INPUT_REPO: ${{ inputs.repo }}
+          INPUT_TAG: ${{ inputs.tag }}
+          INPUT_ADDON_ID: ${{ inputs.addon_id }}
+
+      - name: Download release asset
+        run: |
+          mkdir -p "$ADDON_ID"
+          gh release download "$TAG" --repo "$REPO" --pattern "*.zip" --dir "$ADDON_ID"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Pages URL
+        id: pages-url
+        run: |
+          URL=$(gh api repos/${{ github.repository }}/pages --jq '.html_url')
+          echo "url=${URL%/}" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate index.json
+        run: python scripts/generate_index.py add "$ADDON_ID" "$VERSION"
+        env:
+          PAGES_URL: ${{ steps.pages-url.outputs.url }}
+
+      - name: Update landing pages
+        run: python scripts/generate_pages.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$ADDON_ID"/*.zip index.json ja/README.md en/README.md
+          git diff --staged --quiet && exit 0
+          git commit -m "Update ${REPO##*/} to ${TAG}"
+          git pull --rebase
+          git push
