@@ -62,7 +62,13 @@
               e.preventDefault();
               var targetLang = a.dataset.lang;
               var path = location.hash || '#/ja/';
-              var newPath = path.replace(/^#\/(ja|en)\//, '#/' + targetLang + '/').replace(/\?id=.*$/, '');
+              var newPath;
+              if (/^#\/(ja|en)\//.test(path)) {
+                newPath = path.replace(/^#\/(ja|en)\//, '#/' + targetLang + '/');
+              } else {
+                newPath = '#/' + targetLang + '/';
+              }
+              newPath = newPath.replace(/\?id=.*$/, '');
               location.hash = newPath;
             });
           });
