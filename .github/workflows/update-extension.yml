@@ -56,12 +56,19 @@ jobs:
           INPUT_TAG: ${{ inputs.tag }}
           INPUT_ADDON_ID: ${{ inputs.addon_id }}
 
-      - name: Download release asset
+      - name: Download release asset and get URL
         run: |
           mkdir -p "$ADDON_ID"
           gh release download "$TAG" --repo "$REPO" --pattern "*.zip" --dir "$ADDON_ID"
+          ZIP_NAME=$(ls "$ADDON_ID"/*.zip | head -1 | xargs basename)
+          ASSET_URL=$(gh api "repos/$REPO/releases/tags/$TAG" --jq \
+            ".assets[] | select(.name == \"$ZIP_NAME\") | .browser_download_url")
+          echo "RELEASE_ASSET_URL=$ASSET_URL" >> $GITHUB_ENV
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate index.json
+        run: python scripts/generate_index.py add "$ADDON_ID" "$VERSION"
 
       - name: Get Pages URL
         id: pages-url
@@ -71,20 +78,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate index.json
-        run: python scripts/generate_index.py add "$ADDON_ID" "$VERSION"
+      - name: Update landing pages
+        run: python scripts/generate_pages.py
         env:
           PAGES_URL: ${{ steps.pages-url.outputs.url }}
 
-      - name: Update landing pages
-        run: python scripts/generate_pages.py
+      - name: Clean up downloaded zip
+        run: rm -rf "$ADDON_ID"
 
       - name: Commit and push
         id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add "$ADDON_ID"/*.zip index.json ja/README.md en/README.md
+          git add index.json ja/README.md en/README.md
           if git diff --staged --quiet; then
             echo "changed=false" >> $GITHUB_OUTPUT
           else

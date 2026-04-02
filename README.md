@@ -2,7 +2,7 @@
 
 [日本語](README.ja.md)
 
-Distribution repository for Blender Extensions. Hosted on GitHub Pages, distributing addons in the Blender 4.2+ Extension format.
+Index repository for Blender Extensions. Serves `index.json` and landing pages via GitHub Pages. Actual addon zip files are distributed directly from each addon repository's GitHub Release assets.
 
 **Landing page:** `https://kxn4t.github.io/blender-extensions/`
 
@@ -25,10 +25,16 @@ Distribution repository for Blender Extensions. Hosted on GitHub Pages, distribu
 
 ## Developer Information
 
+### Architecture
+
+- **Each addon repo:** Builds and publishes zip as a GitHub Release asset
+- **This repo (blender-extensions):** Serves `index.json` and landing pages via GitHub Pages
+- **Blender downloads zip** directly from the addon repo's Release asset → GitHub Release `download_count` reflects actual usage
+
 ### How It Works
 
 ```
-Addon repository                      Distribution repository (blender-extensions)
+Addon repository                      Index repository (blender-extensions)
        |                                        |
   Tag push → release.yml                        |
     Build zip → create draft release            |
@@ -37,10 +43,11 @@ Addon repository                      Distribution repository (blender-extension
        |                                        |
   dispatch.yml → repository_dispatch ──────────>|
        |                                  update-extension.yml:
-       |                                    Download zip
-       |                                    Update index.json
+       |                                    Download zip (temp, for hash/size)
+       |                                    Get Release asset URL via API
+       |                                    Update index.json (archive_url → Release asset)
        |                                    Update landing pages
-       |                                    Commit & push
+       |                                    Commit & push (index.json + READMEs only)
        |                                        |
        |                                  pages.yml → Deploy to GitHub Pages
 ```
@@ -55,7 +62,7 @@ Addon repository                      Distribution repository (blender-extension
 2. `release.yml` runs, builds the zip, and creates a **draft release**
 3. Review the release page on GitHub and click **Publish release**
 4. `dispatch.yml` runs and sends a `repository_dispatch` to the distribution repository
-5. `update-extension.yml` in the distribution repository automatically downloads the zip, updates `index.json`, and commits & pushes
+5. `update-extension.yml` in the index repository temporarily downloads the zip (for hash/size), fetches the Release asset URL, and updates `index.json`
 6. The push triggers `pages.yml`, which deploys to GitHub Pages
 
 > Everything after step 3 (Publish) is fully automatic. The only manual steps are **pushing the tag** and **publishing the release**.
@@ -68,7 +75,6 @@ The `id` field in `blender_manifest.toml` serves as the system-wide identifier. 
 |---|---|---|
 | `id` in `blender_manifest.toml` | `snake_case` | `vertex_group_merger` |
 | Zip filename | `{id}-{version}.zip` | `vertex_group_merger-0.6.0.zip` |
-| Folder name in distribution repo | `{id}/` | `vertex_group_merger/` |
 | `index.json` entry identification | Matched by `id` field | Only the latest entry per `id` |
 
 > The `id` is used internally by Blender to identify packages. Only lowercase letters, digits, and underscores are allowed (no hyphens). Once published, the `id` must not be changed.
@@ -106,25 +112,17 @@ Checklist for converting an existing addon to the Extension format (official doc
 5. Add a new entry in `scripts/addons_meta.json` (used for landing page descriptions and links)
 6. Push a tag, create a draft release → publish, and the addon is automatically added to the distribution repository
 
-The only change needed on the distribution repository side is adding an entry to `addons_meta.json` (`generate_index.py` auto-detects folders).
+The only change needed on the index repository side is adding an entry to `addons_meta.json`.
 
 ### Using `generate_index.py`
 
-**add mode** — used in the normal pipeline:
-
 ```bash
-python scripts/generate_index.py add <addon_id> <version>
+RELEASE_ASSET_URL=<url> python scripts/generate_index.py add <addon_id> <version>
 ```
 
-Reads `blender_manifest.toml` from the specified version's zip and incrementally updates `index.json`. Entries with the same `id` are replaced with the latest version.
+Reads `blender_manifest.toml` from the specified version's zip, computes `archive_size` and `archive_hash`, and sets `archive_url` to the `RELEASE_ASSET_URL` environment variable. Entries with the same `id` are replaced with the latest version.
 
-**backfill mode** — for initial setup or when zips were added manually:
-
-```bash
-python scripts/generate_index.py backfill
-```
-
-Scans all `.zip` files in each folder and adds the latest version to `index.json` (does not delete or update existing entries).
+In the CI pipeline, the zip is temporarily downloaded to a runner, and `RELEASE_ASSET_URL` is automatically set from the GitHub Release API.
 
 ### Using `generate_pages.py`
 
@@ -138,11 +136,7 @@ Normally runs automatically within the `update-extension.yml` pipeline, so manua
 
 ### Rollback Procedure
 
-Since past versions of zips remain in their folders, you can roll back with:
-
-```bash
-python scripts/generate_index.py add <addon_id> <old_version>
-```
+To roll back to a previous version, re-run the `update-extension.yml` workflow via `workflow_dispatch` with the old tag. The workflow will download the zip from the old Release, recalculate the hash/size, and update `index.json` with the correct Release asset URL.
 
 ### References
 

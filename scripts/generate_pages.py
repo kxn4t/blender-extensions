@@ -8,6 +8,7 @@ Usage:
 """
 
 import json
+import os
 from pathlib import Path
 from urllib.parse import quote
 
@@ -48,7 +49,8 @@ def generate_section(entry: dict, meta: dict, lang: str) -> str:
     booth_url = addon_meta.get("booth_url", "")
 
     # ドラッグ&ドロップ対応リンク
-    index_url = archive_url.rsplit("/", 2)[0] + "/index.json"
+    pages_url = os.environ.get("PAGES_URL", "").rstrip("/")
+    index_url = f"{pages_url}/index.json" if pages_url else "./index.json"
     install_url = f"{archive_url}?repository={quote(index_url, safe='')}&blender_version_min={blender_min}"
 
     # "4.2.0" -> "4.2"

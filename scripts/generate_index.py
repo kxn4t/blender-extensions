@@ -2,7 +2,6 @@
 
 Usage:
     python scripts/generate_index.py add <addon_id> <version>
-    python scripts/generate_index.py backfill
 """
 
 import hashlib
@@ -68,13 +67,14 @@ def extract_manifest(zip_path: Path) -> dict:
     raise FileNotFoundError(f"blender_manifest.toml not found in {zip_path}")
 
 
-def compute_archive_fields(zip_path: Path, addon_id: str) -> dict:
+def compute_archive_fields(zip_path: Path) -> dict:
     """archive_url, archive_size, archive_hash を計算する。"""
-    base_url = os.environ.get("PAGES_URL", "").rstrip("/")
-    if base_url:
-        archive_url = f"{base_url}/{addon_id}/{zip_path.name}"
+    # GitHub Release asset の browser_download_url を優先して使う
+    release_asset_url = os.environ.get("RELEASE_ASSET_URL", "")
+    if release_asset_url:
+        archive_url = release_asset_url
     else:
-        archive_url = f"./{addon_id}/{zip_path.name}"
+        archive_url = f"./{zip_path.name}"
     file_bytes = zip_path.read_bytes()
     return {
         "archive_url": archive_url,
@@ -106,11 +106,6 @@ def upsert_entry(data: list, entry: dict) -> list:
     return data
 
 
-def parse_version(version_str: str) -> tuple:
-    """バージョン文字列をタプルに変換して比較可能にする。"""
-    return tuple(int(x) for x in version_str.split("."))
-
-
 def cmd_add(addon_id: str, version: str) -> None:
     """add モード: 指定バージョンの zip から差分追加。"""
     zip_path = REPO_ROOT / addon_id / f"{addon_id}-{version}.zip"
@@ -119,62 +114,13 @@ def cmd_add(addon_id: str, version: str) -> None:
         sys.exit(1)
 
     manifest = extract_manifest(zip_path)
-    archive_fields = compute_archive_fields(zip_path, addon_id)
+    archive_fields = compute_archive_fields(zip_path)
     entry = build_entry(manifest, archive_fields)
 
     index = load_index()
     index["data"] = upsert_entry(index["data"], entry)
     save_index(index)
     print(f"Updated {addon_id} to {version}")
-
-
-def cmd_backfill() -> None:
-    """backfill モード: 各フォルダの最新 zip を index.json に追加。"""
-    index = load_index()
-    existing_ids = {e["id"] for e in index["data"]}
-
-    for folder in sorted(REPO_ROOT.iterdir()):
-        if not folder.is_dir():
-            continue
-        # 隠しフォルダ、scripts、.github 等をスキップ
-        if folder.name.startswith(".") or folder.name in ("scripts", "ja", "en", "public"):
-            continue
-
-        zips = sorted(folder.glob("*.zip"))
-        if not zips:
-            continue
-
-        # 各 zip から manifest を読み、最新バージョンを特定
-        best_zip = None
-        best_version = None
-        for zp in zips:
-            try:
-                manifest = extract_manifest(zp)
-            except FileNotFoundError:
-                continue
-            ver = parse_version(manifest["version"])
-            if best_version is None or ver > best_version:
-                best_version = ver
-                best_zip = zp
-
-        if best_zip is None:
-            continue
-
-        manifest = extract_manifest(best_zip)
-        addon_id = manifest["id"]
-
-        # 既存エントリがあればスキップ
-        if addon_id in existing_ids:
-            print(f"Skipping {addon_id} (already in index)")
-            continue
-
-        archive_fields = compute_archive_fields(best_zip, addon_id)
-        entry = build_entry(manifest, archive_fields)
-        index["data"].append(entry)
-        existing_ids.add(addon_id)
-        print(f"Added {addon_id} {manifest['version']}")
-
-    save_index(index)
 
 
 def main() -> None:
@@ -188,8 +134,6 @@ def main() -> None:
             print("Usage: generate_index.py add <addon_id> <version>", file=sys.stderr)
             sys.exit(1)
         cmd_add(sys.argv[2], sys.argv[3])
-    elif command == "backfill":
-        cmd_backfill()
     else:
         print(f"Unknown command: {command}", file=sys.stderr)
         sys.exit(1)

@@ -19,7 +19,7 @@
         "Mesh",
         "Rigging"
       ],
-      "archive_url": "https://kxn4t.github.io/blender-extensions/vertex_group_merger/vertex_group_merger-0.6.0.zip",
+      "archive_url": "https://github.com/kxn4t/vertex-group-merger/releases/download/v0.6.0/vertex_group_merger-0.6.0.zip",
       "archive_size": 26167,
       "archive_hash": "sha256:673d6c65815ed8bccb023997bd65f9e411f1c55579fa926ae08974b227d43b43"
     },
@@ -40,7 +40,7 @@
         "Rigging",
         "Animation"
       ],
-      "archive_url": "https://kxn4t.github.io/blender-extensions/pose_to_rest_pose/pose_to_rest_pose-0.4.0.zip",
+      "archive_url": "https://github.com/kxn4t/pose-to-rest-pose/releases/download/v0.4.0/pose_to_rest_pose-0.4.0.zip",
       "archive_size": 30911,
       "archive_hash": "sha256:9bcf5c2e1beabc09197a9b596827c141157997ae62cbc744ceb4145119bdd554"
     }

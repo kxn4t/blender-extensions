@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-Blender Extensions の配布リポジトリ。GitHub Pages でホストし、Blender 4.2+ の Extension 形式でアドオンを配布する。
+Blender Extensions のインデックスリポジトリ。`index.json` とランディングページを GitHub Pages で配信する。アドオンの zip は各アドオンリポジトリの GitHub Release asset から直接配布される。
 
 **ランディングページ:** `https://kxn4t.github.io/blender-extensions/`
 
@@ -25,10 +25,16 @@ Blender Extensions の配布リポジトリ。GitHub Pages でホストし、Ble
 
 ## 開発者向け情報
 
+### アーキテクチャ
+
+- **各アドオンリポジトリ:** zip をビルドし GitHub Release asset として公開
+- **本リポジトリ (blender-extensions):** `index.json` とランディングページを GitHub Pages で配信
+- **Blender は zip を** アドオンリポジトリの Release asset から直接ダウンロード → GitHub Release の `download_count` が実利用数の指標になる
+
 ### リポジトリの仕組み
 
 ```
-アドオンリポジトリ                    配布リポジトリ (blender-extensions)
+アドオンリポジトリ                    インデックスリポジトリ (blender-extensions)
        |                                        |
   タグ push → release.yml                        |
     zip ビルド → draft リリース作成              |
@@ -37,10 +43,11 @@ Blender Extensions の配布リポジトリ。GitHub Pages でホストし、Ble
        |                                        |
   dispatch.yml → repository_dispatch ──────────> |
        |                                  update-extension.yml:
-       |                                    zip ダウンロード
-       |                                    index.json 更新
+       |                                    zip ダウンロード (一時的、hash/size 計算用)
+       |                                    Release asset URL を API で取得
+       |                                    index.json 更新 (archive_url → Release asset)
        |                                    ランディングページ更新
-       |                                    commit & push
+       |                                    commit & push (index.json + README のみ)
        |                                        |
        |                                  pages.yml → GitHub Pages デプロイ
 ```
@@ -55,7 +62,7 @@ Blender Extensions の配布リポジトリ。GitHub Pages でホストし、Ble
 2. `release.yml` が走り、zip をビルドして **draft リリース**が作成される
 3. GitHub のリリースページで内容を確認し、**Publish release** をクリック
 4. `dispatch.yml` が走り、配布リポジトリへ `repository_dispatch` が送信される
-5. 配布リポジトリの `update-extension.yml` が自動で zip ダウンロード・`index.json` 更新・commit & push を行う
+5. インデックスリポジトリの `update-extension.yml` が zip を一時ダウンロード（hash/size 計算用）し、Release asset URL を取得して `index.json` を更新
 6. push をトリガーに `pages.yml` が走り、GitHub Pages にデプロイされる
 
 > 手順 3 の Publish 以降はすべて自動。手動操作は **タグ push** と **Publish release** の 2 つだけ。
@@ -68,7 +75,6 @@ Blender Extensions の配布リポジトリ。GitHub Pages でホストし、Ble
 |---|---|---|
 | `blender_manifest.toml` の `id` | `snake_case` | `vertex_group_merger` |
 | zip ファイル名 | `{id}-{version}.zip` | `vertex_group_merger-0.6.0.zip` |
-| 配布リポジトリのフォルダ名 | `{id}/` | `vertex_group_merger/` |
 | `index.json` のエントリ識別 | `id` フィールドで一致判定 | 同一 `id` は最新1件のみ |
 
 > `id` は Blender 内部でパッケージを識別するために使われる。英小文字・数字・アンダースコアのみ使用可能（ハイフン不可）。一度公開した `id` は変更しないこと。
@@ -106,25 +112,17 @@ Blender Extensions の配布リポジトリ。GitHub Pages でホストし、Ble
 5. `scripts/addons_meta.json` に新しいアドオンのエントリを追加（ランディングページの説明文・リンクに使用）
 6. タグを打って draft リリース → publish で自動的に配布リポジトリに追加される
 
-配布リポジトリ側で必要な変更は `addons_meta.json` への追加のみ（`generate_index.py` がフォルダを自動検出）。
+インデックスリポジトリ側で必要な変更は `addons_meta.json` への追加のみ。
 
 ### `generate_index.py` の使い方
 
-**add モード** — 通常のパイプラインで使用:
-
 ```bash
-python scripts/generate_index.py add <addon_id> <version>
+RELEASE_ASSET_URL=<url> python scripts/generate_index.py add <addon_id> <version>
 ```
 
-指定バージョンの zip から `blender_manifest.toml` を読み、`index.json` を差分更新する。同一 `id` のエントリは最新バージョンで置き換え。
+指定バージョンの zip から `blender_manifest.toml` を読み、`archive_size` と `archive_hash` を計算し、`archive_url` には環境変数 `RELEASE_ASSET_URL` の値を設定する。同一 `id` のエントリは最新バージョンで置き換え。
 
-**backfill モード** — 初期セットアップや手動で zip を追加した場合:
-
-```bash
-python scripts/generate_index.py backfill
-```
-
-各フォルダ内の全 `.zip` をスキャンし、最新バージョンを `index.json` に追加する（既存エントリの削除や更新はしない）。
+CI パイプラインでは zip は runner に一時ダウンロードされ、`RELEASE_ASSET_URL` は GitHub Release API から自動取得される。
 
 ### `generate_pages.py` の使い方
 
@@ -138,11 +136,7 @@ python scripts/generate_pages.py
 
 ### ロールバック手順
 
-過去バージョンの zip がフォルダに残っているため、以下で戻せる:
-
-```bash
-python scripts/generate_index.py add <addon_id> <old_version>
-```
+以前のバージョンに戻すには、`update-extension.yml` を `workflow_dispatch` で古いタグを指定して再実行する。ワークフローが古い Release から zip をダウンロードし、hash/size を再計算して、正しい Release asset URL で `index.json` を更新する。
 
 ### 参考ソース
 
