@@ -26,7 +26,7 @@ Merge multiple vertex groups into a single target group
 
 **Version:** 0.6.0 (Blender ver. 4.2+)
 
-[Download (v0.6.0)](https://kxn4t.github.io/blender-extensions/vertex_group_merger/vertex_group_merger-0.6.0.zip?repository=https%3A%2F%2Fkxn4t.github.io%2Fblender-extensions%2Findex.json&blender_version_min=4.2.0)
+[Download (v0.6.0)](https://github.com/kxn4t/vertex-group-merger/releases/download/v0.6.0/vertex_group_merger-0.6.0.zip?repository=https%3A%2F%2Fkxn4t.github.io%2Fblender-extensions%2Findex.json&blender_version_min=4.2.0)
 
 [GitHub](https://github.com/kxn4t/vertex-group-merger) | [BOOTH](https://kanameliser.booth.pm/items/6853101)
 
@@ -36,7 +36,7 @@ Apply pose as rest pose while preserving shape keys and drivers
 
 **Version:** 0.4.0 (Blender ver. 4.2+)
 
-[Download (v0.4.0)](https://kxn4t.github.io/blender-extensions/pose_to_rest_pose/pose_to_rest_pose-0.4.0.zip?repository=https%3A%2F%2Fkxn4t.github.io%2Fblender-extensions%2Findex.json&blender_version_min=4.2.0)
+[Download (v0.4.0)](https://github.com/kxn4t/pose-to-rest-pose/releases/download/v0.4.0/pose_to_rest_pose-0.4.0.zip?repository=https%3A%2F%2Fkxn4t.github.io%2Fblender-extensions%2Findex.json&blender_version_min=4.2.0)
 
 [GitHub](https://github.com/kxn4t/pose-to-rest-pose) | [BOOTH](https://kanameliser.booth.pm/items/6999784)
 
