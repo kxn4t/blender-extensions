@@ -28,7 +28,7 @@
       "id": "pose_to_rest_pose",
       "name": "Pose to Rest Pose",
       "tagline": "Apply pose as rest pose keeping shape keys and drivers",
-      "version": "0.4.0",
+      "version": "0.5.0",
       "type": "add-on",
       "maintainer": "kxn4t",
       "license": [
@@ -40,9 +40,9 @@
         "Rigging",
         "Animation"
       ],
-      "archive_url": "https://github.com/kxn4t/pose-to-rest-pose/releases/download/v0.4.0/pose_to_rest_pose-0.4.0.zip",
-      "archive_size": 30911,
-      "archive_hash": "sha256:9bcf5c2e1beabc09197a9b596827c141157997ae62cbc744ceb4145119bdd554"
+      "archive_url": "https://github.com/kxn4t/pose-to-rest-pose/releases/download/v0.5.0/pose_to_rest_pose-0.5.0.zip",
+      "archive_size": 32653,
+      "archive_hash": "sha256:0a18067944864d56c4cbcf07d021d8c8efc4524c15486920b75a1ba4d6b26ea8"
     }
   ]
 }

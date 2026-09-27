@@ -34,9 +34,9 @@ https://kxn4t.github.io/blender-extensions/index.json
 
 シェイプキーとドライバーを保持したままレストポーズを適用するアドオン
 
-**Version:** 0.4.0 (Blender ver. 4.2+)
+**Version:** 0.5.0 (Blender ver. 4.2+)
 
-[ダウンロード (v0.4.0)](https://github.com/kxn4t/pose-to-rest-pose/releases/download/v0.4.0/pose_to_rest_pose-0.4.0.zip?repository=https%3A%2F%2Fkxn4t.github.io%2Fblender-extensions%2Findex.json&blender_version_min=4.2.0)
+[ダウンロード (v0.5.0)](https://github.com/kxn4t/pose-to-rest-pose/releases/download/v0.5.0/pose_to_rest_pose-0.5.0.zip?repository=https%3A%2F%2Fkxn4t.github.io%2Fblender-extensions%2Findex.json&blender_version_min=4.2.0)
 
 [GitHub](https://github.com/kxn4t/pose-to-rest-pose) | [BOOTH](https://kanameliser.booth.pm/items/6999784)
 
