@@ -14,7 +14,12 @@ https://kxn4t.github.io/blender-extensions/index.json
 5. Once the repository is added, you can search and install addons from the Get Extensions screen
 
 > [!TIP]
-> You can also install by dragging and dropping the download link below into the Blender window. The repository will be added automatically.
+> You can also install an addon by dragging and dropping its download link below into the Blender window. **If you are using this repository for the first time, drag and drop the link twice.**
+>
+> 1. **First drop: add the repository** — Drag and drop the download link into Blender, then follow the prompt to add the repository. **The first drop alone does not install the addon.**
+> 2. **Second drop: install the addon** — Once the repository has been added, drag and drop **the same download link again** into Blender and complete the installation.
+>
+> If this repository is already registered, you can install the addon with a single drag and drop of its download link.
 
 ## Available Extensions
 
